@@ -75,7 +75,7 @@ the data format for each file is :
     9)  Coherent (barns) - Coherent Cross Section defined by integrating the above equation.
 
 Then, compute the index of refraction `n` using the relation:
-    n = 1 - delta - beta = 1 - (r0/2*pi)*wavelen^2 \sum_i (x_i * f_i)
+    n = 1 - delta - beta = 1 - (r0/2*pi)*wavelen^2 \\sum_i (x_i * f_i)
 where:
     x_i = number of atoms of type i per unit volume
     f_i = f1 + if2
