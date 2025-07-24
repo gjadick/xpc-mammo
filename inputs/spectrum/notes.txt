@@ -1,0 +1,2 @@
+"30kVp_5mm" spectrum actually generated for 0.5-mm Al filter (NOT 5mm, despite filename)
+"30kVp_2mm" spectrum DOES use a 2-mm filter (name is correct)
