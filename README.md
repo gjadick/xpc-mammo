@@ -75,6 +75,14 @@ uv pip install -r requirements.txt
 
 This installs all Python packages needed to run the code.
 
+You will also need to install `chromatix` after this:
+```bash
+uv pip install git+https://github.com/chromatix-team/chromatix.git
+```
+
+If you want to use GPU acceleration, you'll want to specify which `jax` to install.
+So if you have NVIDIA GPUs and CUDA 12 support, run `uv pip install -U "jax[cuda12]"`.
+
 ---
 
 ### 5. Launch the Jupyter Notebook interface
