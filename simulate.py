@@ -191,19 +191,4 @@ def simulate_projection(proj_beta, proj_delta, dx, det_N, det_dx, energy, R,
     if I0 is not None:
         img = jax.random.poisson(key, I0*img, img.shape) / I0
         
-    return img
-
-energy = 20   
-R = 10e-2
-dx = 2e-6
-det_dx = 5e-6
-det_N = int(dx*N // det_dx)
-print(f'phantom FOV = {dx*N*1e6} um,  det FOV = {det_dx*det_N*1e6} um')
-c = 1e-2 / Nz  # thickness scaling!
-img = simulate_projection(proj_beta*c, proj_delta*c, dx, det_N, det_dx, energy, R, det_psf='gaussian', det_fwhm=5e-6)
-
-plt.imshow(img)
-plt.colorbar()
-plt.show()
-
-    
+    return img    
