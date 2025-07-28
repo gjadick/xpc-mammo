@@ -112,6 +112,98 @@ def apply_psf(img, dx, psf='lorentzian', fwhm='pixel', kernel_width=0.2):
     return img_nonideal
 
 
+def simulate_projection(proj_beta, proj_delta, dx, det_N, det_dx, energy, R, 
+                        I0=None, det_psf=None, det_fwhm=5e-6, n_medium=1, N_pad=100, key=jax.random.PRNGKey(3)):
+    """
+    Simulates a single-energy X-ray phase-contrast imaging (XPCI) projection using propagation-based phase contrast.
 
+    Parameters
+    ----------
+    proj_beta : ndarray
+        2D array representing the line integral of the imaginary part of the refractive index (∫ beta dz) 
+        at a given X-ray energy.
+    proj_delta : ndarray
+        2D array representing the line integral of the real part of the refractive index decrement (∫ delta dz)
+        at the same X-ray energy as specified by the `energy` argument.
+    dx : float
+        Pixel size of the input projections (phantom resolution) in meters.
+    det_N : int
+        Number of detector pixels along one dimension (assumes a square detector).
+    det_dx : float
+        Detector pixel size in meters.
+    energy : float
+        X-ray energy in keV used for the simulation. **Must match the energy used to generate `proj_beta` and `proj_delta`.**
+    R : float
+        Propagation distance (object-to-detector) in meters.
+    I0 : float, optional
+        Mean incident photon fluence per pixel (used to apply Poisson noise).
+    det_psf : callable, optional
+        Point spread function (PSF) model for the detector, applied as a blur to the image.
+    det_fwhm : float, optional
+        Full-width at half maximum (FWHM) of the detector PSF in meters. Default is 1e-6.
+    n_medium : float, optional
+        Refractive index of the propagation medium (e.g., air = 1.0). Default is 1.
+    N_pad : int, optional
+        Padding used in the transfer propagation step. Default is 100.
+    key : jax.random.PRNGKey, optional
+        PRNG key for generating Poisson noise if `I0` is specified.
+
+    Returns
+    -------
+    img : ndarray
+        Simulated detector intensity image, normalized such that the center pixel equals 1.0 before noise and PSF.
+
+    Notes
+    -----
+    - The input projections `proj_beta` and `proj_delta` **must be computed at the same energy** as the `energy` parameter.
+    - The detector field of view (`det_N * det_dx`) **must be less than or equal to** the phantom field of view (`proj_beta.shape[0] * dx`).
+    - If `I0` is provided, Poisson noise is applied to simulate quantum noise.
+    - If `det_psf` is provided, a PSF blur is applied to simulate detector resolution.
+    - This function assumes square images and detectors.
+    """
+
+    assert (proj_beta.shape == proj_delta.shape)
+    assert det_N * det_dx <= proj_beta.shape[0] * dx, 'Detector FOV must be <= phantom FOV'
+
+    phantom_fov = proj_beta.shape[0] * dx
+    det_shape = (det_N, det_N)
+    
+    field = cx.plane_wave(
+        shape = proj_beta.shape, 
+        dx = dx,
+        spectrum = get_wavelen(energy),
+        spectral_density = 1.0,
+    )
+    field = field / field.intensity.max()**0.5  # normalize
+    cval = field.intensity.max()
+
+    exit_field = cx.thin_sample(field, proj_beta[None, ..., None, None], proj_delta[None, ..., None, None], 1.0)
+    det_field = cx.transfer_propagate(exit_field, R, n_medium, N_pad, cval=cval, mode='same')
+
+    det_img = det_field.intensity.squeeze()
+    if det_psf is not None:
+        det_img = apply_psf(det_img, dx, psf=det_psf, fwhm=det_fwhm, kernel_width=0.1)
+
+    det_resample_func = init_plane_resample(det_shape, (det_dx, det_dx), resampling_method='linear')
+    img = det_resample_func(det_img[...,None,None], field.dx.ravel()[:1])[...,0,0]
+    img /= img.ravel()[0] 
+
+    if I0 is not None:
+        img = jax.random.poisson(key, I0*img, img.shape) / I0
+        
+    return img
+
+energy = 20   
+R = 10e-2
+dx = 2e-6
+det_dx = 5e-6
+det_N = int(dx*N // det_dx)
+print(f'phantom FOV = {dx*N*1e6} um,  det FOV = {det_dx*det_N*1e6} um')
+c = 1e-2 / Nz  # thickness scaling!
+img = simulate_projection(proj_beta*c, proj_delta*c, dx, det_N, det_dx, energy, R, det_psf='gaussian', det_fwhm=5e-6)
+
+plt.imshow(img)
+plt.colorbar()
+plt.show()
 
     
