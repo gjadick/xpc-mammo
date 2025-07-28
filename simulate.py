@@ -3,6 +3,7 @@ import jax.numpy as jnp
 from jax.scipy.signal import convolve2d
 import chromatix.functional as cx
 from chromatix.ops import init_plane_resample
+from inputs.xscatter import get_wavelen, get_wavenum
 
 
 h  = 6.62607015e-34           # Planck constant, J/Hz
