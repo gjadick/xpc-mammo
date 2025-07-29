@@ -109,13 +109,23 @@ elements =  ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si',\
     'Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th',\
     'Pa','U','Np','Pu','Am','Cm','Bk','Cf','Es','Fm']
 
-def get_wavelen(energy):
-    """energy in keV -> returns wavelength in m"""
-    return 1e-3*h*c/(energy*J_eV)
+#def get_wavelen(energy):
+#    """energy in keV -> returns wavelength in m"""
+#    return 1e-3*h*c/(energy*J_eV)
     
+#def get_wavenum(energy):
+#    """energy in keV -> returns wavenum in m^-1"""
+#    return 2*pi/get_wavelen(energy)
+
+def get_wavelen(energy):
+    """energy in keV -> returns wavelength in meters"""
+    energy = np.asarray(energy)
+    return 1e-3 * h * c / (energy * J_eV)
+
 def get_wavenum(energy):
-    """energy in keV -> returns wavenum in m^-1"""
-    return 2*pi/get_wavelen(energy)
+    """energy in keV -> returns wavenumber in m^-1"""
+    return 2 * np.pi / get_wavelen(energy)
+
 
 def get_filename(elem, elem_format=ELEM_FORMAT_DEFAULT):
     """
