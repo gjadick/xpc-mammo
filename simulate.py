@@ -192,4 +192,4 @@ def simulate_projection(proj_beta, proj_delta, dx, det_N, det_dx, energy, R,
     if I0 is not None:
         img = jax.random.poisson(key, I0*img, img.shape) / I0
         
-    return img    
+    return img
