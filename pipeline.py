@@ -28,7 +28,7 @@ def run_material_decomposition(energies, R, det_dx, mat_frac=0.5, thickness=0.01
     struct = np.zeros([N, N])
     struct[tmap_ellipsoid(N, 0.35 * N, 0.42 * N, angle=20) > 1e-3] = 1
 
-    vol = make_phantom(N, dx, alpha=4)[:Nz]
+    vol = make_phantom(N, dx, alpha=alpha)[:Nz]
     vol_mask = thresh_texture(vol, mat_frac)
 
     imgs = []
