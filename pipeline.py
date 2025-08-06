@@ -13,7 +13,7 @@ def compute_fom(gt_bmi1, gt_bmi2, bmis):
     return fom, Fgt, Fmd
 
 
-def run_material_decomposition(energies, R, det_dx, mat_frac=0.5, thickness=0.01, seed=33, I0=1e5):
+def run_material_decomposition(energies, R, det_dx, mat_frac=0.5, thickness=0.01, seed=33, I0=1e5, alpha=4):
     gland = Material('gland', 'H(10.2)C(18.4)N(3.2)O(67.6)', 1.04)
     adip = Material('adipose', 'H(11.2)C(61.9)N(1.7)O(25.1)', 0.93)
     mat_dict = {0: gland, 1: adip}
