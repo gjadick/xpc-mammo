@@ -9,7 +9,7 @@ from matdecomp import spbi_material_basis
 def compute_fom(gt_bmi1, gt_bmi2, bmis):
     Fgt = gt_bmi1.sum() / (gt_bmi1.sum() + gt_bmi2.sum())
     Fmd = bmis[0].sum() / (bmis[0].sum() + bmis[1].sum())
-    fom = 100 * abs(Fmd - Fgt) / Fgt
+    fom = 100 * (Fmd - Fgt) / Fgt
     return fom, Fgt, Fmd
 
 
