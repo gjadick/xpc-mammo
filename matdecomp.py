@@ -86,7 +86,11 @@ def spbi_material_basis(images, distances, px, ds, mus):
     assert len(distances) == len(images)
 
     iA = _spbi_mb_solver_matrix(images[0].shape, distances, px, ds, mus)
+    imgs = np.asarray(images, dtype=np.float32)
+    _eps = 1e-8
+    imgs = np.clip(imgs, _eps, None)
     b = np.fft.fftn(np.moveaxis(-np.log(images), 0, 2), axes=(0, 1))
+    
     x = np.einsum('ijxy, xyj -> xyi', iA, b)
     return np.real(np.moveaxis(np.fft.ifftn(x, axes=(0, 1)), 2, 0))
 
