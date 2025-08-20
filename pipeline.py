@@ -9,7 +9,7 @@ from matdecomp import spbi_material_basis
 def compute_fom(gt_bmi1, gt_bmi2, bmis):
     Fgt = gt_bmi1.sum() / (gt_bmi1.sum() + gt_bmi2.sum())
     Fmd = bmis[0].sum() / (bmis[0].sum() + bmis[1].sum())
-    fom = 100 * abs(Fmd - Fgt) / Fgt
+    fom = 100 * (Fmd - Fgt) / Fgt
     return fom, Fgt, Fmd
 
 
@@ -22,11 +22,13 @@ def run_material_decomposition(energies, R, det_dx, mat_frac=0.5, thickness=0.01
     dx = 2e-6
     Nz = int(thickness / 1e-4)
     dz = thickness / Nz
-    det_N = int(dx * N // det_dx)
+    det_N = round(dx * N / det_dx)
 
     np.random.seed(seed)
-    struct = np.zeros([N, N])
-    struct[tmap_ellipsoid(N, 0.35 * N, 0.42 * N, angle=20) > 1e-3] = 1
+    raw_struct = tmap_ellipsoid(N, 0.35 * N, 0.42 * N, angle=20)
+    struct = np.zeros_like(raw_struct)
+    struct[raw_struct > 1e-3] = 1    #flattened mask to avoid curvature artifacts
+
 
     vol = make_phantom(N, dx, alpha=alpha)[:Nz]
     vol_mask = thresh_texture(vol, mat_frac)
